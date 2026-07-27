@@ -1,80 +1,80 @@
 import pygame
 import random
 
-# --- AYARLAR ---
-GENISLIK = 400
-YUKSEKLIK = 600
-YER_CEKIMI = 0.25
-ZIPLAMA_GUCU = -6.5
-BORU_HIZI = 3
-BORU_ARALIGI = 150 # İki boru arasındaki dikey boşluk
-BORU_SIKLIGI = 1500 # Yeni boru gelme süresi (ms)
+# --- SETTINGS ---
+WIDTH = 400
+HEIGHT = 600
+GRAVITY = 0.25
+JUMP_STRENGTH = -6.5
+PIPE_SPEED = 3
+PIPE_GAP = 150   # Vertical gap between pipes
+PIPE_FREQUENCY = 1500  # Time interval for new pipes (ms)
 
-# Renkler
-MAVI = (113, 197, 207)   # Gökyüzü
-SARI = (255, 255, 0)     # Kuş
-YESIL = (115, 191, 46)   # Boru
-KAHVE = (222, 216, 149)  # Zemin
+# Colors
+BLUE = (113, 197, 207)   # Sky
+YELLOW = (255, 255, 0)   # Bird
+GREEN = (115, 191, 46)   # Pipe
+BROWN = (222, 216, 149)  # Ground
 
-class Kus:
+class Bird:
     def __init__(self):
         self.x = 50
-        self.y = YUKSEKLIK // 2
-        self.hiz = 0
-        self.boyut = 30
+        self.y = HEIGHT // 2
+        self.velocity = 0
+        self.size = 30
 
-    def hareket_et(self):
-        self.hiz += YER_CEKIMI
-        self.y += self.hiz
+    def move(self):
+        self.velocity += GRAVITY
+        self.y += self.velocity
 
-    def zipla(self):
-        self.hiz = ZIPLAMA_GUCU
+    def jump(self):
+        self.velocity = JUMP_STRENGTH
 
-    def ciz(self, ekran):
-        pygame.draw.rect(ekran, SARI, [self.x, self.y, self.boyut, self.boyut])
-        # Göz ve gaga detayları
-        pygame.draw.rect(ekran, (0, 0, 0), [self.x + 20, self.y + 5, 5, 5])
-        pygame.draw.rect(ekran, (255, 165, 0), [self.x + 25, self.y + 15, 10, 5])
+    def draw(self, screen):
+        pygame.draw.rect(screen, YELLOW, [self.x, self.y, self.size, self.size])
+        # Eye and beak details
+        pygame.draw.rect(screen, (0, 0, 0), [self.x + 20, self.y + 5, 5, 5])
+        pygame.draw.rect(screen, (255, 165, 0), [self.x + 25, self.y + 15, 10, 5])
 
-class Boru:
+class Pipe:
     def __init__(self, x):
         self.x = x
-        self.genislik = 60
-        self.ust_boy = random.randint(50, YUKSEKLIK - BORU_ARALIGI - 50)
-        self.alt_y = self.ust_boy + BORU_ARALIGI
-        self.gecildi = False
+        self.width = 60
+        self.top_height = random.randint(50, HEIGHT - PIPE_GAP - 50)
+        self.bottom_y = self.top_height + PIPE_GAP
+        self.passed = False
 
-    def hareket_et(self):
-        self.x -= BORU_HIZI
+    def move(self):
+        self.x -= PIPE_SPEED
 
-    def ciz(self, ekran):
-        # Üst Boru
-        pygame.draw.rect(ekran, YESIL, [self.x, 0, self.genislik, self.ust_boy])
-        # Alt Boru
-        pygame.draw.rect(ekran, YESIL, [self.x, self.alt_y, self.genislik, YUKSEKLIK - self.alt_y])
-        # Boru Başlıkları
-        pygame.draw.rect(ekran, (50, 100, 20), [self.x - 5, self.ust_boy - 20, self.genislik + 10, 20])
-        pygame.draw.rect(ekran, (50, 100, 20), [self.x - 5, self.alt_y, self.genislik + 10, 20])
+    def draw(self, screen):
+        # Top Pipe
+        pygame.draw.rect(screen, GREEN, [self.x, 0, self.width, self.top_height])
+        # Bottom Pipe
+        pygame.draw.rect(screen, GREEN, [self.x, self.bottom_y, self.width, HEIGHT - self.bottom_y])
+        # Pipe Caps
+        pygame.draw.rect(screen, (50, 100, 20), [self.x - 5, self.top_height - 20, self.width + 10, 20])
+        pygame.draw.rect(screen, (50, 100, 20), [self.x - 5, self.bottom_y, self.width + 10, 20])
 
-def ana_dongu():
+def main_loop():
     pygame.init()
-    ekran = pygame.display.set_mode((GENISLIK, YUKSEKLIK))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Cyberia Flappy Bird")
-    saat = pygame.time.Clock()
+    clock = pygame.time.Clock()
     font = pygame.font.SysFont("Arial", 32, bold=True)
 
-    kus = Kus()
-    borular = []
+    bird = Bird()
+    pipes = []
     
-    # Zamanlayıcı (Boru üretimi için)
-    BORU_OLUSTUR = pygame.USEREVENT
-    pygame.time.set_timer(BORU_OLUSTUR, BORU_SIKLIGI)
+    # Timer (for pipe generation)
+    PIPE_EVENT = pygame.USEREVENT
+    pygame.time.set_timer(PIPE_EVENT, PIPE_FREQUENCY)
 
-    skor = 0
-    oyun_aktif = True
+    score = 0
+    game_active = True
 
     while True:
-        ekran.fill(MAVI)
+        screen.fill(BLUE)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,63 +83,63 @@ def ana_dongu():
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if oyun_aktif:
-                        kus.zipla()
+                    if game_active:
+                        bird.jump()
                     else:
-                        # Oyunu sıfırla
-                        kus = Kus()
-                        borular = []
-                        skor = 0
-                        oyun_aktif = True
+                        # Reset game
+                        bird = Bird()
+                        pipes = []
+                        score = 0
+                        game_active = True
             
-            if event.type == BORU_OLUSTUR and oyun_aktif:
-                borular.append(Boru(GENISLIK))
+            if event.type == PIPE_EVENT and game_active:
+                pipes.append(Pipe(WIDTH))
 
-        if oyun_aktif:
-            kus.hareket_et()
+        if game_active:
+            bird.move()
             
-            for boru in borular[:]:
-                boru.hareket_et()
+            for pipe in pipes[:]:
+                pipe.move()
                 
-                # Çarpışma Kontrolü
-                kus_rect = pygame.Rect(kus.x, kus.y, kus.boyut, kus.boyut)
-                ust_boru_rect = pygame.Rect(boru.x, 0, boru.genislik, boru.ust_boy)
-                alt_boru_rect = pygame.Rect(boru.x, boru.alt_y, boru.genislik, YUKSEKLIK - boru.alt_y)
+                # Collision Check
+                bird_rect = pygame.Rect(bird.x, bird.y, bird.size, bird.size)
+                top_pipe_rect = pygame.Rect(pipe.x, 0, pipe.width, pipe.top_height)
+                bottom_pipe_rect = pygame.Rect(pipe.x, pipe.bottom_y, pipe.width, HEIGHT - pipe.bottom_y)
 
-                if kus_rect.colliderect(ust_boru_rect) or kus_rect.colliderect(alt_boru_rect):
-                    oyun_aktif = False
+                if bird_rect.colliderect(top_pipe_rect) or bird_rect.colliderect(bottom_pipe_rect):
+                    game_active = False
                 
-                # Skor Artışı
-                if not boru.gecildi and boru.x + boru.genislik < kus.x:
-                    skor += 1
-                    boru.gecildi = True
+                # Score Increase
+                if not pipe.passed and pipe.x + pipe.width < bird.x:
+                    score += 1
+                    pipe.passed = True
                 
-                # Ekrandan çıkan boruları sil
-                if boru.x < -boru.genislik:
-                    borular.remove(boru)
+                # Remove pipes that leave the screen
+                if pipe.x < -pipe.width:
+                    pipes.remove(pipe)
 
-            # Zemin veya tavan kontrolü
-            if kus.y <= 0 or kus.y + kus.boyut >= YUKSEKLIK:
-                oyun_aktif = False
+            # Ground or ceiling check
+            if bird.y <= 0 or bird.y + bird.size >= HEIGHT:
+                game_active = False
 
-        # Çizimler
-        for boru in borular:
-            boru.ciz(ekran)
+        # Draw everything
+        for pipe in pipes:
+            pipe.draw(screen)
         
-        kus.ciz(ekran)
+        bird.draw(screen)
         
-        # Skor gösterimi
-        skor_metni = font.render(str(skor), True, (255, 255, 255))
-        ekran.blit(skor_metni, (GENISLIK // 2 - 10, 50))
+        # Score display
+        score_text = font.render(str(score), True, (255, 255, 255))
+        screen.blit(score_text, (WIDTH // 2 - 10, 50))
 
-        if not oyun_aktif:
-            mesaj = font.render("OYUN BITTI!", True, (255, 0, 0))
-            tekrar = font.render("Tekrar icin SPACE", True, (0, 0, 0))
-            ekran.blit(mesaj, (GENISLIK // 2 - 80, YUKSEKLIK // 2 - 50))
-            ekran.blit(tekrar, (GENISLIK // 2 - 110, YUKSEKLIK // 2 + 10))
+        if not game_active:
+            message = font.render("GAME OVER!", True, (255, 0, 0))
+            retry = font.render("Press SPACE to Retry", True, (0, 0, 0))
+            screen.blit(message, (WIDTH // 2 - 80, HEIGHT // 2 - 50))
+            screen.blit(retry, (WIDTH // 2 - 110, HEIGHT // 2 + 10))
 
         pygame.display.update()
-        saat.tick(60)
+        clock.tick(60)
 
 if __name__ == "__main__":
-    ana_dongu()
+    main_loop()
