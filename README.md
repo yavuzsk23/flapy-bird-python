@@ -4,7 +4,6 @@ A classic Flappy Bird clone built with **Pygame**. Guide the bird through an end
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Pygame](https://img.shields.io/badge/Pygame-2.x-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
 
