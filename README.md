@@ -41,6 +41,7 @@ python flappy_bird.py
 ### How it works
 The game runs on a standard game loop capped at 60 FPS. Each frame, the bird's vertical velocity increases due to a constant `GRAVITY` value, simulating a fall; pressing Space overrides this velocity with a fixed `JUMP_STRENGTH`. Pipes are spawned via a Pygame timer event (`PIPE_EVENT`) every 1500ms, each with a randomized gap position. Collision is detected using `pygame.Rect.colliderect()` between the bird's hitbox and each pipe segment.
 
+Note: This project was developed with AI assistance as part of my learning process
 
 ---
 
@@ -78,6 +79,7 @@ python flappy_bird.py
 ### Funktionsweise
 Das Spiel läuft in einer klassischen Game-Loop mit einer Begrenzung auf 60 FPS. In jedem Frame erhöht sich die vertikale Geschwindigkeit des Vogels durch einen konstanten `GRAVITY`-Wert, was einen Fall simuliert; ein Druck auf die Leertaste überschreibt diese Geschwindigkeit mit einem festen `JUMP_STRENGTH`-Wert. Rohre werden über ein Pygame-Timer-Event (`PIPE_EVENT`) alle 1500ms erzeugt, jeweils mit einer zufällig positionierten Lücke. Die Kollisionserkennung erfolgt über `pygame.Rect.colliderect()` zwischen der Trefferbox des Vogels und jedem Rohrsegment.
 
+Hinweis Dieses Projekt wurde im Rahmen meines Lernprozesses mit KI-Unterstützung entwickelt
 
 ---
 
@@ -114,3 +116,5 @@ python flappy_bird.py
 
 ### Nasıl çalışır?
 Oyun, saniyede 60 kareyle (FPS) sınırlandırılmış standart bir oyun döngüsü üzerinde çalışır. Her karede, kuşun dikey hızı sabit bir `GRAVITY` değeriyle artar ve bu düşüşü simüle eder; Boşluk tuşuna basmak bu hızı sabit bir `JUMP_STRENGTH` değeriyle geçersiz kılar. Borular, Pygame zamanlayıcı olayı (`PIPE_EVENT`) aracılığıyla her 1500ms'de bir, rastgele bir boşluk pozisyonuyla oluşturulur. Çarpışma tespiti, kuşun çarpışma kutusu ile her boru segmenti arasında `pygame.Rect.colliderect()` kullanılarak yapılır.
+
+Not Bu proje öğrenme sürecimin bir parçası olarak yapay zeka desteğiyle geliştirilmiştir
